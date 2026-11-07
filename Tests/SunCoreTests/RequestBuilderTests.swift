@@ -69,6 +69,34 @@ struct RequestBuilderTests {
         #expect(components.percentEncodedQuery?.contains("a%2Bb%20%26%20c") == true)
     }
 
+    @Test func makeWhenNoHeaderIsDeclaredThenAcceptsJSON() throws {
+        // Given
+        let builder = RequestBuilder(baseURL: URL(string: "https://example.test")!)
+
+        // When
+        let result = try builder.make(TestRequest())
+
+        // Then
+        #expect(result.value(forHTTPHeaderField: "Accept") == "application/json")
+    }
+
+    @Test func makeWhenAcceptIsDeclaredThenDeclarationReplacesDefault() throws {
+        // Given
+        let builder = RequestBuilder(
+            baseURL: URL(string: "https://example.test")!,
+            defaultHeaders: ["accept": "text/csv"]
+        )
+        let request = TestRequest(headers: ["Accept": "application/pdf"])
+
+        // When
+        let defaultResult = try builder.make(TestRequest())
+        let requestResult = try builder.make(request)
+
+        // Then
+        #expect(defaultResult.value(forHTTPHeaderField: "Accept") == "text/csv")
+        #expect(requestResult.value(forHTTPHeaderField: "Accept") == "application/pdf")
+    }
+
     @Test func makeWhenRequestOverridesHeaderThenMatchesNamesIgnoringCase() throws {
         // Given
         let builder = RequestBuilder(

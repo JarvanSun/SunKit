@@ -31,6 +31,7 @@ public struct RequestBuilder: Sendable {
 
         var result = URLRequest(url: try url(for: request), timeoutInterval: timeout)
         result.httpMethod = request.method.rawValue
+        result.setValue("application/json", forHTTPHeaderField: "Accept")
         for (name, value) in defaultHeaders { result.setValue(value, forHTTPHeaderField: name) }
         if let body = request.body {
             result.httpBody = try body.encode(using: makeJSONEncoder())
